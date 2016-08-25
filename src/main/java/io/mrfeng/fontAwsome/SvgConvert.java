@@ -85,7 +85,8 @@ public class SvgConvert {
                 .forEach(document -> {
                     System.out.println(document.toString());
                     String unicode = string2Unicode(document.getName());
-                    File file = new File(OUTPUT_DIR, dictionary.getOrDefault(unicode, unicode) + ".xml");
+                    String orDefault = dictionary.getOrDefault(unicode, "fa_" + unicode).replace('-', '_');
+                    File file = new File(OUTPUT_DIR, orDefault + ".xml");
                     XMLWriter writer = null;
                     try {
                         file.createNewFile();

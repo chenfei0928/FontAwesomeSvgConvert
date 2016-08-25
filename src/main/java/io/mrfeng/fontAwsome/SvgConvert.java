@@ -5,12 +5,19 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.TextNode;
 import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
@@ -23,6 +30,42 @@ public class SvgConvert {
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
         System.out.println("begin");
+
+        org.jsoup.nodes.Document htmlParse = Jsoup.parse(new URL("http://fontawesome.io/cheatsheet/"), 10000);
+
+        Map<String, String> dictionary = new LinkedHashMap<>();
+        Map<String, Set<String>> aliasDictionary = new LinkedHashMap<>();
+        int length = 0;
+        for (org.jsoup.nodes.Element container : htmlParse.body().getElementById("wrap").getElementsByClass("container")) {
+            for (org.jsoup.nodes.Element row : container.getElementsByClass("row")) {
+                for (org.jsoup.nodes.Element element : row.getElementsByTag("div")) {
+                    List<TextNode> textNodes = element.textNodes();
+                    for (TextNode textNode : textNodes) {
+                        String trim = textNode.text().replace('\r', ' ').replace('\n', ' ').trim();
+                        if (trim.startsWith("fa-")) {
+                            for (org.jsoup.nodes.Element span : element.getElementsByTag("span")) {
+                                if (span.text().contains("[&#x")) {
+                                    String spanText = span.text().trim();
+                                    String substring = spanText.substring(4, spanText.length() - 2);
+                                    if (dictionary.containsKey(substring)) {
+                                        Set<String> orDefault = aliasDictionary.get(substring);
+                                        orDefault = orDefault == null ? new LinkedHashSet<>() : orDefault;
+                                        orDefault.add(dictionary.get(substring));
+                                        orDefault.add(trim);
+                                        aliasDictionary.put(substring, orDefault);
+                                    } else {
+                                        dictionary.put(substring, trim);
+                                    }
+                                    length++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println(dictionary.size() + " " + aliasDictionary.size() + " " + length);
+
         FontAwsomeParse parse = new FontAwsomeParse();
         SAXParserFactory.newInstance().newSAXParser().parse(new File(SVG_SOURCE), parse);
         List<SvgInfo> mSvgInfos = parse.getMSvgInfos();
@@ -41,7 +84,8 @@ public class SvgConvert {
                 .map(SvgConvert::convertSvgInfo2XmlDocument)
                 .forEach(document -> {
                     System.out.println(document.toString());
-                    File file = new File(OUTPUT_DIR, string2Unicode(document.getName()) + ".xml");
+                    String unicode = string2Unicode(document.getName());
+                    File file = new File(OUTPUT_DIR, dictionary.getOrDefault(unicode, unicode) + ".xml");
                     XMLWriter writer = null;
                     try {
                         file.createNewFile();

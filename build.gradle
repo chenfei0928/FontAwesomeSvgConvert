@@ -28,4 +28,5 @@ dependencies {
     compile 'org.projectlombok:lombok:1.16.10'
 
     compile "org.dom4j:dom4j:2.0.0"
+    compile 'org.jsoup:jsoup:1.9.2'
 }

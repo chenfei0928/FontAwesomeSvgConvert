@@ -5,13 +5,14 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import lombok.Getter;
 
 class FontAwsomeParse extends DefaultHandler {
     @Getter
-    private final List<SvgInfo> mSvgInfos = new ArrayList<>();
+    private final List<SvgInfo> mSvgInfos = new LinkedList<>();
     private int size;
 
     @Override

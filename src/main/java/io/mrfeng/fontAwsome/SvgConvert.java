@@ -119,11 +119,14 @@ public class SvgConvert {
         Element group = vector.addElement("group")
                 .addAttribute(ns + "pivotX", String.valueOf(info.getSize() / 2))
                 .addAttribute(ns + "pivotY", String.valueOf(info.getSize() / 2))
-                .addAttribute(ns + "scaleY", "-1");
+                .addAttribute(ns + "scaleY", "-1")
+                .addAttribute(ns + "translateY", String.valueOf(-256));
         group.addElement("path")
                 .addAttribute(ns + "fillColor", "#ffff")
                 .addAttribute(ns + "pathData", info.getPath());
-        String name = info.getUnicode();
+        String name = info.getUnicode() == null
+                ? info.getName()
+                : info.getUnicode();
         document.setName(name);
         return document;
     }

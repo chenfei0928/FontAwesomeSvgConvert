@@ -25,8 +25,8 @@ import javax.xml.parsers.SAXParserFactory;
 public class SvgConvert {
     private static final String nameSpace = "android";
     private static final String ns = "android:";
-    private static final String SVG_SOURCE = "C:\\Users\\MrFeng\\Documents\\Tencent Files\\751824142\\FileRecv\\fontawesome-webfont.svg";
-    private static final String OUTPUT_DIR = "C:\\Users\\MrFeng\\Documents\\Tencent Files\\751824142\\FileRecv\\out";
+    private static final String SVG_SOURCE = "C:\\Users\\MrFeng\\Desktop\\font\\fontawesome-webfont.svg";
+    private static final String OUTPUT_DIR = "C:\\Users\\MrFeng\\Desktop\\font\\out";
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
         System.out.println("begin");
@@ -39,6 +39,7 @@ public class SvgConvert {
         for (org.jsoup.nodes.Element container : htmlParse.body().getElementById("wrap").getElementsByClass("container")) {
             for (org.jsoup.nodes.Element row : container.getElementsByClass("row")) {
                 for (org.jsoup.nodes.Element element : row.getElementsByTag("div")) {
+                    // 获取到fa-所在的div
                     List<TextNode> textNodes = element.textNodes();
                     for (TextNode textNode : textNodes) {
                         String trim = textNode.text().replace('\r', ' ').replace('\n', ' ').trim();
@@ -104,6 +105,7 @@ public class SvgConvert {
                             }
                     }
                 });
+        System.out.println("finished");
     }
 
     private static Document convertSvgInfo2XmlDocument(SvgInfo info) {
@@ -121,9 +123,7 @@ public class SvgConvert {
         group.addElement("path")
                 .addAttribute(ns + "fillColor", "#ffff")
                 .addAttribute(ns + "pathData", info.getPath());
-        String name = info.getName() != null
-                ? info.getName()
-                : info.getUnicode();
+        String name = info.getUnicode();
         document.setName(name);
         return document;
     }
